@@ -9,8 +9,9 @@
         crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
-    <script src="script.js"></script>
-    <link href="style.css" rel="stylesheet">
+    <script src="js/git.js"></script>
+    <script src="js/index.js"></script>
+    <link href="css/index.css" rel="stylesheet">
 </head>
 
 <body>
@@ -38,6 +39,19 @@
         <div class="row mb-3 mt-3">
             <div class="col">
                 <button type="button" class="btn btn-outline-primary" id="prolific_users" onclick="gitUsers()">Users</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader_small" class="loader">
+        <img src="img/loader.gif" width="50px" height="50px">
+    </div>
+    <div id="loader_big" class="loader">
+        <div class="row">
+            <div class="col">
+                <div class="text-center">
+                    <img src="img/loader.gif">
+                </div>
             </div>
         </div>
     </div>
