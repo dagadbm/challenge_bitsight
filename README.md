@@ -1,1 +1,1 @@
-index.html (chrome latest version)
+Open index.html with chrome (latest version)
