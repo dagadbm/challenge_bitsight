@@ -1,5 +1,57 @@
+//Revealing Module Pattern
 var gitHubAPI = (($) => {
     const _gitUrl = 'https://api.github.com';
+
+    const getRepositories = (searchDate) => {
+        return $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5');
+    };
+
+    const getUsers = (searchDate) => {
+        return $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=5');
+    };
+
+    const getNumberOfFollowersPerUser = async (userLogin) => {
+        const getUserFollowersInfoResponse = await _getUserFollowersInfoPromise(userLogin);
+
+        let followersLastPage = 0;
+        if (getUserFollowersInfoResponse.lastPageUrl !== "") {
+            const getUserFollowersLastPageReponse = await $.getJSON(getUserFollowersInfoResponse.lastPageUrl);
+            followersLastPage = getUserFollowersLastPageReponse.length;
+        }
+
+        if (followersLastPage !== 0) {
+            return (getUserFollowersInfoResponse.totalPageNumbers - 1) * getUserFollowersInfoResponse.followersPerPage + followersLastPage
+        } else {
+            return followersPerPage; //only one page of followers 
+        }
+    };
+
+    // Returns a promise compliant object with the following information:
+    // followersPerPage, lastPageUrl (can be "" if user has few followers) and the totalPageNumbers of followers the user has
+    const _getUserFollowersInfoPromise = (userLogin) => {
+        // could have used new Promise(...) but it made the code a bit more callbackhell'ish with extra levels of indentation
+        const getUserFollowersPromise = $.Deferred();
+        $.getJSON(_gitUrl + '/users/' + userLogin + '/followers',
+            (response, status, jqXhr) => {
+                const followersPerPage = response.length;
+                let lastPageUrl = "";
+                let totalPageNumbers = 0;
+
+                const navigation = jqXhr.getResponseHeader("link");
+                if (navigation !== null) {
+                    const links = _parseLinkHeader(navigation);
+                    const lastPageRegex = /page=(\d+)/;
+                    totalPageNumbers = Number(lastPageRegex.exec(links["last"])[1]);
+                    lastPageUrl = links["last"];
+                }
+                getUserFollowersPromise.resolve({
+                    followersPerPage: followersPerPage,
+                    lastPageUrl: lastPageUrl,
+                    totalPageNumbers: totalPageNumbers
+                });
+            });
+        return getUserFollowersPromise.promise();
+    }
 
     const _parseLinkHeader = (header) => {
         const parts = header.split(',');
@@ -13,61 +65,6 @@ var gitHubAPI = (($) => {
         }
 
         return links;
-    };
-
-    const getRepositories = async (searchDate) => {
-        return await $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5');
-    };
-
-    const getUsers = async (searchDate) => {
-        return await $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=1');
-    };
-
-    const getNumberOfFollowersPerUser = async (userLogin) => {
-        debugger;
-        //first call the main followers page and gather information about followers per page the total number of pages as well as the url to access the last page
-        const followersFirstPagePromise = $.Deferred();
-        $.getJSON(_gitUrl + '/users/' + userLogin + '/followers').done(
-            (response, status, jqXhr) => {
-                const followersPerPage = response.length;
-                let lastPageUrl = "";
-                let totalPageNumbers = 0;
-
-                const navigation = jqXhr.getResponseHeader("link");
-                if (navigation !== null) {
-                    const links = _parseLinkHeader(navigation);
-                    const lastPageRegex = /page=(\d+)/;
-                    totalPageNumbers = lastPageRegex.exec(links["last"])[1];
-                    lastPageUrl = links["last"];
-                }
-                debugger;
-                followersFirstPagePromise.resolve({
-                    followersPerPage: followersPerPage,
-                    lastPageUrl: lastPageUrl,
-                    totalPageNumbers: totalPageNumbers
-                });
-            });
-
-        //afterwards, get the last page followers, after the first promise has completed
-        const followersLastPagePromise = $.Deferred();
-        followersFirstPagePromise.done((data) => {
-            if (data.lastPageUrl !== "") {
-                $.getJSON(data.lastPageUrl).done((response, status, jqXhr) => {
-                    return followersLastPagePromise.resolve(response.length)
-                });
-            } else {
-                return followersLastPagePromise.resolve(0);
-            }
-        });
-
-        //you need both promises results to calculate the total number of followers
-        return await $.when(followersFirstPagePromise, followersLastPagePromise).done((firstPagePromise, followersLastPage) => {
-            if (followersLastPage !== 0) {
-                return (firstPagePromise.totalPageNumbers - 1) * firstPagePromise.followersPerPage + followersLastPage
-            } else {
-                return firstPagePromise.followersPerPage;
-            }
-        });
     };
 
     return {
