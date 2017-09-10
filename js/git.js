@@ -16,11 +16,11 @@ var gitApi = (($) => {
     };
 
     const getRepositories = (searchDate, callback) => {
-        return $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5', callback);
+        return new Promise((resolve, reject) => $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5', (response) => resolve(response)));
     };
 
     const getUsers = (searchDate, callback) => {
-        return $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=5', callback);
+        return new Promise((resolve, reject) => $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=5', (response) => resolve(response)));
     };
 
     const getNumberOfFollowersPerUser = (userLogin) => {

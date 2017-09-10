@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Git statistics</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
-        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/lux/bulmaswatch.min.css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="js/git.js"></script>
@@ -15,46 +17,65 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-2"><span class="font-weight-bold">Id</span></div>
-            <div class="col-2"><span class="font-weight-bold">Name</span></div>
-            <div class="col-6"><span class="font-weight-bold">Description</span></div>
-            <div class="col-2"><span class="font-weight-bold">Stars</span></div>
-        </div>
-        <div id="repositories_content"></div>
-        <div class="row mb-3 mt-3">
-            <div class="col">
-                <button type="button" class="btn btn-outline-primary" id="hot_repo" onclick="gitRepositories()">Repositories</button>
+    <section class="hero is-primary is-medium">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    Git statistics
+                </h1>
+                <h2 class="subtitle">
+                    A code challenge
+                </h2>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-2"><span class="font-weight-bold">Id</span></div>
-            <div class="col-2"><span class="font-weight-bold">Login</span></div>
-            <div class="col-6"><span class="font-weight-bold">Avatar</span></div>
-            <div class="col-2"><span class="font-weight-bold">Followers</span></div>
-        </div>
-        <div id="users_content"></div>
-        <div class="row mb-3 mt-3">
-            <div class="col">
-                <button type="button" class="btn btn-outline-primary" id="prolific_users" onclick="gitUsers()">Users</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="loader_small" class="loader">
-        <img src="img/loader.gif" width="50px" height="50px">
-    </div>
-    <div id="loader_big" class="loader">
-        <div class="row">
-            <div class="col">
-                <div class="text-center">
-                    <img src="img/loader.gif">
+    </section>
+    <section class="section">
+        <div class="container-fluid">
+            <div class="columns is-desktop">
+                <div class="column">
+                    <article class="message">
+                        <div class="message-header">
+                            <p>Hot repositories</p>
+                            <button type="button" class="button is-outlined is-white is-small" id="hot_repo"> 
+                                <span class="icon is-small">
+                                    <i class="fa fa-refresh"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="message-body" id="repositories_table">
+                            <div class="columns is-mobile">
+                                <div class="column is-2"><strong>Id</strong></div>
+                                <div class="column"><strong>Name</strong></div>
+                                <div class="column"><strong>Description</strong></div>
+                                <div class="column is-1"><strong>Stars</strong></div>
+                            </div>
+                            <div id="repositories_content"></div>
+                        </div>
+                </div>
+                </article>
+                <div class="column">
+                    <article class="message">
+                        <div class="message-header">
+                            <p>Prolific users</p>
+                            <button type="button" class="button is-outlined is-white is-small" id="prolific_users"> 
+                                <span class="icon is-small">
+                                    <i class="fa fa-refresh"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="message-body" id="users_table">
+                            <div class="columns is-mobile">
+                                <div class="column"><strong>Id</strong></div>
+                                <div class="column"><strong>Login</strong></div>
+                                <div class="column"><strong>Avatar</strong></div>
+                                <div class="column"><strong>Followers</strong></div>
+                            </div>
+                            <div id="users_content"></div>
+                        </div>
+                    </article>
                 </div>
             </div>
-        </div>
-    </div>
+    </section>
 </body>
 
 </html>
