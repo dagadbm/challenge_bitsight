@@ -1,4 +1,4 @@
-var gitApi = (($) => {
+var gitHubAPI = (($) => {
     const _gitUrl = 'https://api.github.com';
 
     const _parseLinkHeader = (header) => {
@@ -15,17 +15,19 @@ var gitApi = (($) => {
         return links;
     };
 
-    const getRepositories = (searchDate, callback) => {
-        return new Promise((resolve, reject) => $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5', (response) => resolve(response)));
+    const getRepositories = async (searchDate) => {
+        return await $.getJSON(_gitUrl + '/search/repositories?q=fork:true+created:>=' + searchDate + '&sort=stars,&order=desc&page=1&per_page=5');
     };
 
-    const getUsers = (searchDate, callback) => {
-        return new Promise((resolve, reject) => $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=5', (response) => resolve(response)));
+    const getUsers = async (searchDate) => {
+        return await $.getJSON(_gitUrl + '/search/users?q=created:>=' + searchDate + '&sort=followers,&order=desc&page=1&per_page=1');
     };
 
-    const getNumberOfFollowersPerUser = (userLogin) => {
+    const getNumberOfFollowersPerUser = async (userLogin) => {
+        debugger;
         //first call the main followers page and gather information about followers per page the total number of pages as well as the url to access the last page
-        const followersFirstPagePromise = new Promise((resolve, reject) => $.getJSON(_gitUrl + '/users/' + userLogin + '/followers',
+        const followersFirstPagePromise = $.Deferred();
+        $.getJSON(_gitUrl + '/users/' + userLogin + '/followers').done(
             (response, status, jqXhr) => {
                 const followersPerPage = response.length;
                 let lastPageUrl = "";
@@ -38,31 +40,35 @@ var gitApi = (($) => {
                     totalPageNumbers = lastPageRegex.exec(links["last"])[1];
                     lastPageUrl = links["last"];
                 }
-                resolve({
+                debugger;
+                followersFirstPagePromise.resolve({
                     followersPerPage: followersPerPage,
                     lastPageUrl: lastPageUrl,
                     totalPageNumbers: totalPageNumbers
                 });
-            }));
+            });
 
         //afterwards, get the last page followers, after the first promise has completed
-        const followersLastPagePromise = followersFirstPagePromise.then((data) => {
-            return new Promise((resolve, reject) => $.getJSON(data.lastPageUrl, (response, status, jqXhr) => {
-                resolve({
-                    followersLastPage: response.length
+        const followersLastPagePromise = $.Deferred();
+        followersFirstPagePromise.done((data) => {
+            if (data.lastPageUrl !== "") {
+                $.getJSON(data.lastPageUrl).done((response, status, jqXhr) => {
+                    return followersLastPagePromise.resolve(response.length)
                 });
-            }));
+            } else {
+                return followersLastPagePromise.resolve(0);
+            }
         });
 
         //you need both promises results to calculate the total number of followers
-        return Promise.all([followersFirstPagePromise, followersLastPagePromise]).then(values => {
-            let firstPagePromise = values[0];
-            let lastPagePromise = values[1];
-            return {
-                totalNumberOfFollowers: (firstPagePromise.totalPageNumbers - 1) * firstPagePromise.followersPerPage + lastPagePromise.followersLastPage
-            };
+        return await $.when(followersFirstPagePromise, followersLastPagePromise).done((firstPagePromise, followersLastPage) => {
+            if (followersLastPage !== 0) {
+                return (firstPagePromise.totalPageNumbers - 1) * firstPagePromise.followersPerPage + followersLastPage
+            } else {
+                return firstPagePromise.followersPerPage;
+            }
         });
-    }
+    };
 
     return {
         getRepositories: getRepositories,
