@@ -1,0 +1,7 @@
+.word-wrap {
+    word-wrap: break-word;
+}
+
+.has-text-justify {
+    text-align: justify;
+}

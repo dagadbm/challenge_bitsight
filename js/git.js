@@ -11,45 +11,49 @@ var gitHubAPI = (($) => {
     };
 
     const getNumberOfFollowersPerUser = async (userLogin) => {
+        // call users/followers and get last page url, followers per page and total number of pages
         const getUserFollowersInfoResponse = await _getUserFollowersInfoPromise(userLogin);
 
+        // if there is a last page url, get the last page number of followers
         let followersLastPage = 0;
-        if (getUserFollowersInfoResponse.lastPageUrl !== "") {
+        if (getUserFollowersInfoResponse.lastPageUrl !== '') {
             const getUserFollowersLastPageReponse = await $.getJSON(getUserFollowersInfoResponse.lastPageUrl);
             followersLastPage = getUserFollowersLastPageReponse.length;
         }
 
+        // do the math for one or many follower pages
         if (followersLastPage !== 0) {
             return (getUserFollowersInfoResponse.totalPageNumbers - 1) * getUserFollowersInfoResponse.followersPerPage + followersLastPage
         } else {
-            return followersPerPage; //only one page of followers 
+            return followersPerPage;
         }
     };
 
     // Returns a promise compliant object with the following information:
-    // followersPerPage, lastPageUrl (can be "" if user has few followers) and the totalPageNumbers of followers the user has
+    // followersPerPage, lastPageUrl (can be '' if user has few followers) and the totalPageNumbers of followers the user has
     const _getUserFollowersInfoPromise = (userLogin) => {
-        // could have used new Promise(...) but it made the code a bit more callbackhell'ish with extra levels of indentation
+        // could have used new Promise(...) but it made the code a bit more callback hell'ish with extra levels of indentation
         const getUserFollowersPromise = $.Deferred();
         $.getJSON(_gitUrl + '/users/' + userLogin + '/followers',
             (response, status, jqXhr) => {
                 const followersPerPage = response.length;
-                let lastPageUrl = "";
+                let lastPageUrl = '';
                 let totalPageNumbers = 0;
 
-                const navigation = jqXhr.getResponseHeader("link");
+                const navigation = jqXhr.getResponseHeader('link');
                 if (navigation !== null) {
                     const links = _parseLinkHeader(navigation);
                     const lastPageRegex = /page=(\d+)/;
-                    totalPageNumbers = Number(lastPageRegex.exec(links["last"])[1]);
-                    lastPageUrl = links["last"];
+                    totalPageNumbers = Number(lastPageRegex.exec(links['last'])[1]);
+                    lastPageUrl = links['last'];
                 }
                 getUserFollowersPromise.resolve({
                     followersPerPage: followersPerPage,
                     lastPageUrl: lastPageUrl,
                     totalPageNumbers: totalPageNumbers
                 });
-            });
+            }).fail((err) =>
+                getUserFollowersPromise.reject(err))
         return getUserFollowersPromise.promise();
     }
 
@@ -63,7 +67,6 @@ var gitHubAPI = (($) => {
             const name = section[1].replace(/rel="([^"]+)"/, '$1').trim();
             links[name] = url;
         }
-
         return links;
     };
 

@@ -5,8 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GitHub statistics</title>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="css/bulmaswatch.lux.min.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="js/git.js"></script>
@@ -29,7 +32,7 @@
     <section class="section">
         <div class="container-fluid">
             <div class="columns is-desktop">
-                <div class="column">
+                <div class="column is-8">
                     <article class="message is-dark">
                         <div class="message-header">
                             <p>Hot repositories</p>
@@ -40,16 +43,24 @@
                             </button>
                         </div>
                         <div class="message-body" id="repositories_table">
-                            <div class="columns is-mobile">
+                            <div class="columns is-mobile is-vcentered is-marginless is-hidden" id="repositories_error">
+                                <div class="column">
+                                    <div class="notification is-danger">
+                                        An error ocurred while contacting GitHub for repository information. Please try again later.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="columns is-mobile is-vcentered" id="repositories_header">
                                 <div class="column is-2"><strong>Id</strong></div>
-                                <div class="column"><strong>Name</strong></div>
-                                <div class="column"><strong>Description</strong></div>
+                                <div class="column is-2"><strong>Name</strong></div>
+                                <div class="column is-7"><strong>Description</strong></div>
                                 <div class="column is-1"><strong>Stars</strong></div>
                             </div>
-                            <div id="repositories_content"></div>
+                            <div class="columns is-mobile is-vcentered is-multiline" id="repositories_body">
+                            </div>
                         </div>
+                    </article>
                 </div>
-                </article>
                 <div class="column">
                     <article class="message is-dark">
                         <div class="message-header">
@@ -61,13 +72,20 @@
                             </button>
                         </div>
                         <div class="message-body" id="users_table">
-                            <div class="columns is-mobile">
+                            <div class="columns is-mobile is-vcentered is-marginless is-hidden" id="users_error">
+                                <div class="column">
+                                    <div class="notification is-danger">
+                                        An error ocurred while contacting GitHub for user information. Please try again later.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="columns is-mobile is-vcentered" id="users_header">
                                 <div class="column"><strong>Id</strong></div>
                                 <div class="column"><strong>Login</strong></div>
                                 <div class="column"><strong>Avatar</strong></div>
                                 <div class="column"><strong>Followers</strong></div>
                             </div>
-                            <div id="users_content"></div>
+                            <div id="users_body"></div>
                         </div>
                     </article>
                 </div>
